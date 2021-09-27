@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31702.278
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tabellieren-uebung", "Tabellieren-uebung\Tabellieren-uebung.csproj", "{2987F119-22C7-4B7C-9306-C5377ADED74B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tabellieren-uebung-tests", "Tabellieren-uebung-tests\Tabellieren-uebung-tests.csproj", "{24BEB11B-26C6-438F-B154-989BF09C9909}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2987F119-22C7-4B7C-9306-C5377ADED74B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2987F119-22C7-4B7C-9306-C5377ADED74B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2987F119-22C7-4B7C-9306-C5377ADED74B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2987F119-22C7-4B7C-9306-C5377ADED74B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24BEB11B-26C6-438F-B154-989BF09C9909}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24BEB11B-26C6-438F-B154-989BF09C9909}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24BEB11B-26C6-438F-B154-989BF09C9909}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24BEB11B-26C6-438F-B154-989BF09C9909}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0F8265FE-C8F1-4A06-8D35-99B1F1EF41CB}
+	EndGlobalSection
+EndGlobal

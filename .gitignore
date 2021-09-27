@@ -1,0 +1,16 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Tabellieren-uebung/bin/Debug/net5.0
+/Tabellieren-uebung/obj/Debug/net5.0
+/.vs/Tabellieren-uebung/DesignTimeBuild
+/.vs/Tabellieren-uebung/v16
+/Tabellieren-uebung-tests/bin/Debug/net5.0
+/Tabellieren-uebung-tests/obj/Debug/net5.0
+/Tabellieren-uebung-tests/obj/Tabellieren-uebung-tests.csproj.nuget.g.targets
+/Tabellieren-uebung-tests/obj/Tabellieren-uebung-tests.csproj.nuget.g.props
+/Tabellieren-uebung-tests/obj/Tabellieren-uebung-tests.csproj.nuget.dgspec.json
+/Tabellieren-uebung-tests/obj/project.nuget.cache
+/Tabellieren-uebung-tests/obj/project.assets.json
+/Tabellieren-uebung/obj
