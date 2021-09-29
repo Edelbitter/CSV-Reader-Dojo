@@ -17,12 +17,11 @@ namespace Tabellieren_uebung
             string userInput = "F";
             int currentPage = 1;
             int lastPage = lines.Length / pagelength + (lines.Length % pagelength > 0 ? 1 : 0);
-            List<string> linesToPrint = new List<string>();
+            
             while (true)
             {
                 if (userInput == "F")
                 {
-                    //linesToPrint = lines.Take(pagelength).ToList();
                     currentPage = 1;
                 }
                 else if (userInput == "P")
@@ -41,7 +40,7 @@ namespace Tabellieren_uebung
                 {
                     return;
                 }
-                linesToPrint = lines.Skip(pagelength * (currentPage - 1)).Take(pagelength).ToList();
+                var linesToPrint = lines.Skip(pagelength * (currentPage - 1)).Take(pagelength).ToList();
 
                 var output = Tabellieren(linesToPrint);
 
