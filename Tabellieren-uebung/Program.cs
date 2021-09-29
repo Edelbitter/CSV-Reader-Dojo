@@ -83,16 +83,7 @@ namespace Tabellieren_uebung
             return result;
         }
 
-        public static void GenerateTextLines(int numberOfOutputLines, List<int> columnLengths,
-            List<List<string>> words, string[] result)
-        {
-            for (int i = 1; i < numberOfOutputLines - 1; i += 2)
-            {
-                result[i] = GenerateOneTextLine(columnLengths, words[i / 2]);
-            }
-        }
-
-        private static string GenerateOneTextLine(List<int> columnLengths, List<string> words)
+        public static string GenerateOneTextLine(List<int> columnLengths, List<string> words)
         {
             string output = "|";
             for (int j = 0; j < columnLengths.Count; j++)
@@ -106,15 +97,7 @@ namespace Tabellieren_uebung
             return output;
         }
 
-        public static void GenerateSeparatorLines(int numberOfOutputLines, List<int> columnLengths, string[] result)
-        {
-            for (int i = 0; i < numberOfOutputLines; i += 2)
-            {
-                result[i] = GenerateOneSeparatorLine(columnLengths);
-            }
-        }
-
-        private static string GenerateOneSeparatorLine(List<int> columnLengths)
+        public static string GenerateOneSeparatorLine(List<int> columnLengths)
         {
             string output = "+";
             foreach (var colLength in columnLengths)

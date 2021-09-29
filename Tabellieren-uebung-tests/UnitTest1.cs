@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using Tabellieren_uebung;
@@ -14,7 +15,7 @@ namespace Tabellieren_uebung_tests
         [Test]
         public void TabellierenWorks()
         {
-            var actual = Program.Tabellieren(input);
+            var actual = Program.Tabellieren(input.ToList());
             actual.Should().BeEquivalentTo(output);
         }
 
@@ -22,12 +23,11 @@ namespace Tabellieren_uebung_tests
         public void GenerateTextLinesWorks()
         {
             List<int> columnLengths = new List<int>() { 3, 4, 5 };
-            List<List<string>> words = new List<List<string>>() { new List<string>() { "123", "456", "789" }, new List<string>() { "123", "456", "789" } };
+            List<string> words = new List<string>()   { "123", "456", "789" } ;
 
-            string[] result = new string[5];
-            Program.GenerateTextLines(5, 3, columnLengths, words, result);
+            string actual = Program.GenerateOneTextLine( columnLengths, words);
 
-            result.Should().BeEquivalentTo(new string[] {null, "|123|456 |789  |", null, "|123|456 |789  |", null});
+            actual.Should().BeEquivalentTo( "|123|456 |789  |");
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace Tabellieren_uebung_tests
         [Test]
         public void PutWordsIn2DimensionalArrayWorks()
         {
-            var actual = Program.PutWordsIn2DimensionalArray(new string[] {"horst;hugo;klaus"}, 1);
+            var actual = Program.PutWordsIn2DimensionalArray(new List<string> {"horst;hugo;klaus"}, 1);
             actual.Should().BeEquivalentTo(new List<List<string>> {new List<string>() {"horst", "hugo", "klaus"}});
         }
 

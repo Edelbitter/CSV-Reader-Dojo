@@ -1,9 +1,6 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=63354e84_002Dacb3_002D4a67_002D9e58_002Da98cce1d9b69/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TabellierenWorks" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.Tests.TabellierenWorks&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.Tests.GenerateTextLinesWorks&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.Tests.CalculateColumnLenghtsWorks&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.Tests.PutWordsIn2DimensionalArrayWorks&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.Tests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
