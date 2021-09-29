@@ -8,7 +8,7 @@ namespace Tabellieren_uebung
     {
         static void Main(string[] args)
         {
-            int pagelength = 59;
+            int pagelength = 10;
             if (args.Length > 0)
                 int.TryParse(args?[1], out pagelength);
 
