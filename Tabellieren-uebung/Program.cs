@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Tabellieren_uebung
 {
@@ -17,7 +18,10 @@ namespace Tabellieren_uebung
             string userInput = "F";
             int currentPage = 1;
             int lastPage = lines.Length / pagelength + (lines.Length % pagelength > 0 ? 1 : 0);
-            
+
+            var pageSelectionRegex = new Regex(@"J\d+");
+
+
             while (true)
             {
                 if (userInput == "F")
@@ -36,6 +40,10 @@ namespace Tabellieren_uebung
                 {
                     currentPage = lastPage;
                 }
+                else if (pageSelectionRegex.IsMatch(userInput))
+                {
+                    currentPage = int.Parse(userInput.Substring(1));
+                }
                 else if (userInput == "E")
                 {
                     return;
@@ -48,7 +56,8 @@ namespace Tabellieren_uebung
                 {
                     Console.WriteLine(output[i]);
                 }
-                Console.WriteLine("F)irst page, P)revious page, N)ext page, L)ast page, E)xit");
+                Console.WriteLine($"Page {currentPage} of {lastPage}");
+                Console.WriteLine("F)irst page, P)revious page, N)ext page, L)ast page, J)ump to page, E)xit");
                 userInput = Console.ReadLine();
             }
             int x = 1;
