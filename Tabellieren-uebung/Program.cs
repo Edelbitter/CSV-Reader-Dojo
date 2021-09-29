@@ -81,11 +81,7 @@ namespace Tabellieren_uebung
                 {
                     int numberOfWhitespaces = columnLengths[j] - words[i / 2][j].Length;
                     result[i] += words[i / 2][j];
-                    for (int k = 0; k < numberOfWhitespaces; k++)
-                    {
-                        result[i] += " ";
-                    }
-
+                    result[i] += new string(' ', numberOfWhitespaces);
                     result[i] += "|";
                 }
             }
@@ -96,17 +92,18 @@ namespace Tabellieren_uebung
         {
             for (int i = 0; i < numberOfOutputLines; i += 2)
             {
-                result[i] = "+";
-                for (int j = 0; j < numberOfColumns; j++)
-                {
-                    for (int k = 0; k < columnLengths[j]; k++)
-                    {
-                        result[i] += "-";
-                    }
-
-                    result[i] += "+";
-                }
+                result[i] = GenerateOneSeparatorLine(columnLengths);
             }
+        }
+
+        private static string GenerateOneSeparatorLine(List<int> columnLengths)
+        {
+            string output = "+";
+            foreach (var colLength in columnLengths)
+            {
+                output += new string('-', colLength) + "+";
+            }
+            return output;
         }
 
         public static List<int> CalculateColumnLenghts(int numberOfColumns, int numberOfInputLines, List<List<string>> words)
