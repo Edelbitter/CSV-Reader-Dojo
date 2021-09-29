@@ -8,7 +8,7 @@ namespace Tabellieren_uebung
     {
         static void Main(string[] args)
         {
-            int pagelength = 10;
+            int pagelength = 59;
             if (args.Length > 0)
                 int.TryParse(args?[1], out pagelength);
 
@@ -16,12 +16,13 @@ namespace Tabellieren_uebung
             lines = lines.Where(l => !string.IsNullOrEmpty(l)).ToArray();
             string userInput = "F";
             int currentPage = 1;
+            int lastPage = lines.Length / pagelength + (lines.Length % pagelength > 0 ? 1 : 0);
             List<string> linesToPrint = new List<string>();
             while (true)
             {
-                if(userInput == "F")
+                if (userInput == "F")
                 {
-                    linesToPrint = lines.Take(pagelength).ToList();
+                    //linesToPrint = lines.Take(pagelength).ToList();
                     currentPage = 1;
                 }
                 else if (userInput == "P")
@@ -30,14 +31,25 @@ namespace Tabellieren_uebung
                 }
                 else if (userInput == "N")
                 {
-
+                    currentPage = currentPage + 1 < lastPage ? currentPage + 1 : lastPage;
                 }
+                else if (userInput == "L")
+                {
+                    currentPage = lastPage;
+                }
+                else if (userInput == "E")
+                {
+                    return;
+                }
+                linesToPrint = lines.Skip(pagelength * (currentPage-1)).Take(pagelength).ToList();
+
                 var output = Tabellieren(linesToPrint);
 
                 for (int i = 0; i < output.Length; i++)
                 {
                     Console.WriteLine(output[i]);
                 }
+                Console.WriteLine("F)irst page, P)revious page, N)ext page, L)ast page, E)xit");
                 userInput = Console.ReadLine();
             }
             int x = 1;
