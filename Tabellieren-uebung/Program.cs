@@ -41,7 +41,7 @@ namespace Tabellieren_uebung
                 {
                     return;
                 }
-                linesToPrint = lines.Skip(pagelength * (currentPage-1)).Take(pagelength).ToList();
+                linesToPrint = lines.Skip(pagelength * (currentPage - 1)).Take(pagelength).ToList();
 
                 var output = Tabellieren(linesToPrint);
 
@@ -61,34 +61,52 @@ namespace Tabellieren_uebung
             int numberOfColumns = csvZeilen[0].Split(";").Length;
             int numberOfOutputLines = numberOfInputLines * 2 + 1;
 
-            string[] result = new string[numberOfOutputLines];
+            //string[] result = new string[numberOfOutputLines];
 
             var words = PutWordsIn2DimensionalArray(csvZeilen, numberOfInputLines);
             var columnLengths = CalculateColumnLenghts(numberOfColumns, numberOfInputLines, words);
-            GenerateSeparatorLines(numberOfOutputLines, numberOfColumns, columnLengths, result);
-            GenerateTextLines(numberOfOutputLines, numberOfColumns, columnLengths, words, result);
+            
+            var result = Combine(columnLengths, numberOfInputLines, words);
+            return result.ToArray();
+        }
+
+        public static List<string> Combine(List<int> columnLengths, int numberOfInputLines, List<List<string>> words)
+        {
+            var result = new List<string>();
+            result.Add(GenerateOneSeparatorLine(columnLengths));
+            for (int i = 0; i < numberOfInputLines; i++)
+            {
+                result.Add(GenerateOneTextLine(columnLengths, words[i]));
+                result.Add(GenerateOneSeparatorLine(columnLengths));
+            }
 
             return result;
         }
 
-        public static void GenerateTextLines(int numberOfOutputLines, int numberOfColumns, List<int> columnLengths,
+        public static void GenerateTextLines(int numberOfOutputLines, List<int> columnLengths,
             List<List<string>> words, string[] result)
         {
             for (int i = 1; i < numberOfOutputLines - 1; i += 2)
             {
-                result[i] = "|";
-                for (int j = 0; j < numberOfColumns; j++)
-                {
-                    int numberOfWhitespaces = columnLengths[j] - words[i / 2][j].Length;
-                    result[i] += words[i / 2][j];
-                    result[i] += new string(' ', numberOfWhitespaces);
-                    result[i] += "|";
-                }
+                result[i] = GenerateOneTextLine(columnLengths, words[i / 2]);
             }
         }
 
-        public static void GenerateSeparatorLines(int numberOfOutputLines, int numberOfColumns,
-            List<int> columnLengths, string[] result)
+        private static string GenerateOneTextLine(List<int> columnLengths, List<string> words)
+        {
+            string output = "|";
+            for (int j = 0; j < columnLengths.Count; j++)
+            {
+                int numberOfWhitespaces = columnLengths[j] - words[j].Length;
+                output += words[j];
+                output += new string(' ', numberOfWhitespaces);
+                output += "|";
+            }
+
+            return output;
+        }
+
+        public static void GenerateSeparatorLines(int numberOfOutputLines, List<int> columnLengths, string[] result)
         {
             for (int i = 0; i < numberOfOutputLines; i += 2)
             {
