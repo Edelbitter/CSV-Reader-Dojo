@@ -15,6 +15,8 @@ namespace Tabellieren_uebung
 
             string[] lines = System.IO.File.ReadAllLines(@"C:\Users\rekr\Downloads\CSVViewer\personen.csv");
             lines = lines.Where(l => !string.IsNullOrEmpty(l)).ToArray();
+            string titleLine = "No.;" + lines[0];
+            lines = lines.Skip(1).Select((l, i) => $"{ i + 1};{l}").ToArray();
             string userInput = "F";
             int currentPage = 1;
             int lastPage = lines.Length / pagelength + (lines.Length % pagelength > 0 ? 1 : 0);
@@ -49,7 +51,7 @@ namespace Tabellieren_uebung
                     return;
                 }
                 var linesToPrint = lines.Skip(pagelength * (currentPage - 1)).Take(pagelength).ToList();
-
+                linesToPrint.Insert(0, titleLine);
                 var output = Tabellieren(linesToPrint);
 
                 for (int i = 0; i < output.Length; i++)
@@ -73,7 +75,7 @@ namespace Tabellieren_uebung
 
             var words = PutWordsIn2DimensionalArray(csvZeilen, numberOfInputLines);
             var columnLengths = CalculateColumnLenghts(numberOfColumns, numberOfInputLines, words);
-            
+
             var result = Combine(columnLengths, numberOfInputLines, words);
             return result.ToArray();
         }
