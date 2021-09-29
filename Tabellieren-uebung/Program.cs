@@ -15,14 +15,18 @@ namespace Tabellieren_uebung
 
             string[] lines = System.IO.File.ReadAllLines(@"C:\Users\rekr\Downloads\CSVViewer\personen.csv");
             lines = lines.Where(l => !string.IsNullOrEmpty(l)).ToArray();
+            var columns = lines[0].Split(';').ToList();
             string titleLine = "No.;" + lines[0];
-            lines = lines.Skip(1).Select((l, i) => $"{ i + 1};{l}").ToArray();
+            lines = lines.Skip(1).ToArray();
             string userInput = "F";
             int currentPage = 1;
             int lastPage = lines.Length / pagelength + (lines.Length % pagelength > 0 ? 1 : 0);
 
             var pageSelectionRegex = new Regex(@"J\d+");
 
+            int columnToSortIndex = 0;
+
+            bool sort = false;
 
             while (true)
             {
@@ -50,8 +54,25 @@ namespace Tabellieren_uebung
                 {
                     return;
                 }
+                else if (userInput == "S")
+                {
+                    Console.WriteLine("enter column name to sort on:");
+                    var chosenColumn = Console.ReadLine();
+                    if (columns.Contains(chosenColumn))
+                    {
+                        columnToSortIndex = columns.IndexOf(chosenColumn);
+                        sort = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("column name does not exist");
+                    }
+                }
 
-                var linesToPrint = lines.Skip(pagelength * (currentPage - 1)).Take(pagelength).ToList();
+                if (sort)
+                { lines = lines.OrderBy((l => l.Split(';')[columnToSortIndex])).ToArray(); }
+                var linesNumbered = lines.Select((l, i) => $"{ i + 1};{l}").ToArray();
+                var linesToPrint = linesNumbered.Skip(pagelength * (currentPage - 1)).Take(pagelength).ToList();
                 linesToPrint.Insert(0, titleLine);
                 var output = Tabellieren(linesToPrint);
 
@@ -60,7 +81,7 @@ namespace Tabellieren_uebung
                     Console.WriteLine(output[i]);
                 }
                 Console.WriteLine($"Page {currentPage} of {lastPage}");
-                Console.WriteLine("F)irst page, P)revious page, N)ext page, L)ast page, J)ump to page, E)xit");
+                Console.WriteLine("F)irst page, P)revious page, N)ext page, L)ast page, J)ump to page, S)ort, E)xit");
                 userInput = Console.ReadLine();
             }
             int x = 1;
