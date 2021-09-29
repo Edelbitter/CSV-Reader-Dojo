@@ -70,7 +70,9 @@ namespace Tabellieren_uebung
                 }
 
                 if (sort)
-                { lines = lines.OrderBy((l => l.Split(';')[columnToSortIndex])).ToArray(); }
+                {
+                    lines = lines.OrderBy((l => l.Split(';')[columnToSortIndex])).ToArray();
+                }
                 var linesNumbered = lines.Select((l, i) => $"{ i + 1};{l}").ToArray();
                 var linesToPrint = linesNumbered.Skip(pagelength * (currentPage - 1)).Take(pagelength).ToList();
                 linesToPrint.Insert(0, titleLine);
