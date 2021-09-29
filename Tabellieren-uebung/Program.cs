@@ -50,6 +50,7 @@ namespace Tabellieren_uebung
                 {
                     return;
                 }
+
                 var linesToPrint = lines.Skip(pagelength * (currentPage - 1)).Take(pagelength).ToList();
                 linesToPrint.Insert(0, titleLine);
                 var output = Tabellieren(linesToPrint);
