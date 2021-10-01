@@ -22,7 +22,8 @@ namespace Tabellieren_uebung
             int numberOfLines = 0;
             string titleLine = (await GetLinesFromPageNumber(1, pagePositions, path, 1024, 1)).FirstOrDefault();
             pagePositions[0] = new UTF8Encoding().GetBytes(titleLine +'\n').Length;
-            var pagePosisTask =  FindPageStartOffsetsAndTitleLine(path, pagelength);
+            var pagePosisTask =  FindPageStartOffsets(path, pagelength);
+            //var pagePosis = await FindPageStartOffsetsAndTitleLine(path, pagelength);
             
             var columns = titleLine.Split(';').ToList();
             titleLine = "No.;" + titleLine;
@@ -31,16 +32,17 @@ namespace Tabellieren_uebung
             string userInput = "F";
             int currentPage = 1;
             int lastPage = 1;//lines.Length / pagelength + (lines.Length % pagelength > 0 ? 1 : 0);
-            
+            bool pagePositionsFound = false;
 
             while (true)
             {
-                if (pagePosisTask.IsCompleted)
+                if (pagePosisTask.IsCompleted && !pagePositionsFound)
                 {
                     //lastPage = numberOfLines / pagelength + (numberOfLines % pagelength > 0 ? 1 : 0);
-                    pagePositions = pagePosisTask.Result;
-                    var numberOfPages = pagePosisTask.Result.Count;
+                    pagePositions.AddRange( pagePosisTask.Result);
+                    var numberOfPages = pagePosisTask.Result.Count+1;
                     lastPage = numberOfPages;
+                    pagePositionsFound = true;
                 }
                 if (userInput == "E")
                 {
@@ -48,9 +50,9 @@ namespace Tabellieren_uebung
                 }
 
                 currentPage = GetCurrentPageFromUserInput(userInput, lastPage,currentPage);
-                var lines = await GetLinesFromPageNumber(currentPage,pagePositions,path,1024,numberOfLines);
-                var linesNumbered = lines.Select((l, i) => $"{ i + 1};{l}").ToArray();
-                var linesToPrint = linesNumbered.Skip(pagelength * (currentPage - 1)).Take(pagelength).ToList();
+                var lines = await GetLinesFromPageNumber(currentPage,pagePositions,path,1024,pagelength);
+                var linesNumbered = lines.Select((l, i) => $"{ 1+i + ((currentPage-1) * pagelength)};{l}").ToArray();
+                var linesToPrint = linesNumbered.Take(pagelength).ToList();
                 linesToPrint.Insert(0, titleLine);
                 var output = Tabellieren(linesToPrint);
 
@@ -59,7 +61,7 @@ namespace Tabellieren_uebung
                     Console.WriteLine(output[i]);
                 }
                 Console.WriteLine($"Page {currentPage} of {lastPage}{(pagePosisTask.IsCompleted ? null : '?')}");
-                Console.WriteLine("F)irst page, P)revious page, N)ext page, L)ast page, J)ump to page, S)ort, E)xit");
+                Console.WriteLine("F)irst page, P)revious page, N)ext page, L)ast page, J)ump to page, E)xit");
                 userInput = Console.ReadLine();
             }
             int x = 1;
@@ -116,30 +118,27 @@ namespace Tabellieren_uebung
             return currentPage;
         }
 
-        private static async Task<List<int>> FindPageStartOffsetsAndTitleLine(string path, int pagelength)
+        private static async Task<List<int>> FindPageStartOffsets(string path, int pagelength)
         {
             var pagePosis = new List<int>();
             string titleLine = "";
             using (FileStream fs = File.OpenRead(path))
             {
                 int buffersize = 1024;
-                byte[] b = new byte[buffersize];
+                
                 UTF8Encoding temp = new UTF8Encoding(true);
 
                 var bytesRead = 0;
                 do
                 {
+                    byte[] b = new byte[buffersize];
                     bytesRead = await fs.ReadAsync(b, 0, b.Length);
                     var str = temp.GetString(b);
 
                     var lines = str.Split('\n').Where(l => l.Length > 0).ToList();
 
-                    if (bytesRead < buffersize)
-                    {
-                        break;
-                    }
 
-                    if (lines.Count - 1 < pagelength)
+                    if (lines.Count - 2 < pagelength)
                     {
                         buffersize *= 2;
                         continue;
@@ -156,7 +155,13 @@ namespace Tabellieren_uebung
                     var pageBlock = str.Substring(0, endOfPage - 1);
                     var pageBlockBytes = temp.GetBytes(pageBlock).Length;
                     pagePosis.Add(pageBlockBytes + pagePosis.LastOrDefault());
-                    
+
+
+                    if (bytesRead < buffersize)
+                    {
+                        break;
+                    }
+
                     fs.Seek(pagePosis.Last(), SeekOrigin.Begin);
                     
                 } while (bytesRead > 0);
