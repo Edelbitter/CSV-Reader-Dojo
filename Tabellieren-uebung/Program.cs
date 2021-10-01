@@ -19,13 +19,12 @@ namespace Tabellieren_uebung
             string path = @"C:\Users\rekr\Downloads\CSVViewer\personen.csv";
             List<int> pagePositions = new List<int>() { 0 };
 
-            int numberOfLines = 0;
             string titleLine = (await GetLinesFromPageNumber(1, pagePositions, path, 1024, 1)).FirstOrDefault();
             pagePositions[0] = new UTF8Encoding().GetBytes(titleLine +'\n').Length;
             var pagePosisTask =  FindPageStartOffsets(path, pagelength);
             //var pagePosis = await FindPageStartOffsetsAndTitleLine(path, pagelength);
             
-            var columns = titleLine.Split(';').ToList();
+            var columns = titleLine?.Split(';').ToList();
             titleLine = "No.;" + titleLine;
 
 
@@ -64,13 +63,12 @@ namespace Tabellieren_uebung
                 Console.WriteLine("F)irst page, P)revious page, N)ext page, L)ast page, J)ump to page, E)xit");
                 userInput = Console.ReadLine();
             }
-            int x = 1;
         }
 
         public static async Task<List<string>> GetLinesFromPageNumber(int currentPage, List<int> pagePosis, string path,int buffersize,int numberOfLines)
         {
             var offset = pagePosis[currentPage-1];
-            using (FileStream fs = File.OpenRead(path))
+            await using (FileStream fs = File.OpenRead(path))
             {
                 byte[] b = new byte[buffersize];
                 UTF8Encoding temp = new UTF8Encoding(true);
@@ -122,7 +120,7 @@ namespace Tabellieren_uebung
         {
             var pagePosis = new List<int>();
             string titleLine = "";
-            using (FileStream fs = File.OpenRead(path))
+            await using (FileStream fs = File.OpenRead(path))
             {
                 int buffersize = 1024;
                 
@@ -172,7 +170,7 @@ namespace Tabellieren_uebung
 
         public async Task<List<string>> GetLinesFromOffset(int numberOfLines, int offset, string path,int buffersize)
         {
-            using (FileStream fs = File.OpenRead(path))
+            await using (FileStream fs = File.OpenRead(path))
             {
                 byte[] b = new byte[buffersize];
                 UTF8Encoding temp = new UTF8Encoding(true);
@@ -193,39 +191,7 @@ namespace Tabellieren_uebung
                 }
             }
         }
-
-        private static async Task<int> CountLinesAsync(string path)
-        {
-            int nolines = 0;
-            using (StreamReader sr = File.OpenText(path))
-            {
-                string s = "";
-                while ((s = await sr.ReadLineAsync()) != null)
-                {
-                    if (s.Length > 1) nolines++;
-                    Console.WriteLine(s);
-                }
-            }
-
-            return nolines;
-        }
-
-        //private static async Task<string> GetSpecificLineAsync(string path)
-        //{
-        //    int nolines = 0;
-        //    using (StreamReader sr = File.OpenText(path))
-        //    {
-        //        string s = "";
-        //        while ((s = await sr..ReadLineAsync()) != null)
-        //        {
-        //            if (s.Length > 1) nolines++;
-        //            Console.WriteLine(s);
-        //        }
-        //    }
-
-        //    return nolines;
-        //}
-
+        
         public static string[] Tabellieren(List<string> csvZeilen)
         {
             int numberOfInputLines = csvZeilen.Count;
