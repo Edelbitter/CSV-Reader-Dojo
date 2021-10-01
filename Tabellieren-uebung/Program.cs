@@ -60,7 +60,7 @@ namespace Tabellieren_uebung
                 {
                     Console.WriteLine(output[i]);
                 }
-                Console.WriteLine($"Page {currentPage} of {lastPage}{(pagePosisTask.IsCompleted ? null : '?')}");
+                Console.WriteLine($"Page {currentPage} of {lastPage}{(pagePositionsFound ? null : '?')}");
                 Console.WriteLine("F)irst page, P)revious page, N)ext page, L)ast page, J)ump to page, E)xit");
                 userInput = Console.ReadLine();
             }
