@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,18 +13,16 @@ namespace Tabellieren_uebung
     {
         static async Task Main(string[] args)
         {
-            int pagelength = 10;
-            if (args.Length > 0)
-                int.TryParse(args?[1], out pagelength);
+            if (!GetPathFromArgs(args, out var path)) return;
+            var numberOfLinesPerPage = GetPageLengthFromArgs(args, defaultLength: 10);
+            if (!GetFileEncoding(path, out Encoding encoding)) return;
 
-            string path = @"C:\Users\rekr\Downloads\CSVViewer\personen.csv";
             List<int> pagePositions = new List<int>() { 0 };
 
             string titleLine = (await GetLinesFromPageNumber(1, pagePositions, path, 1024, 1)).FirstOrDefault();
-            pagePositions[0] = new UTF8Encoding().GetBytes(titleLine +'\n').Length;
-            var pagePosisTask =  FindPageStartOffsets(path, pagelength);
-            //var pagePosis = await FindPageStartOffsetsAndTitleLine(path, pagelength);
-            
+            pagePositions[0] = new UTF8Encoding().GetBytes(titleLine + '\n').Length;
+            var pagePositionsTask = FindPageStartOffsets(path, numberOfLinesPerPage);
+
             var columns = titleLine?.Split(';').ToList();
             titleLine = "No.;" + titleLine;
 
@@ -35,11 +34,11 @@ namespace Tabellieren_uebung
 
             while (true)
             {
-                if (pagePosisTask.IsCompleted && !pagePositionsFound)
+                if (pagePositionsTask.IsCompleted && !pagePositionsFound)
                 {
                     //lastPage = numberOfLines / pagelength + (numberOfLines % pagelength > 0 ? 1 : 0);
-                    pagePositions.AddRange( pagePosisTask.Result);
-                    var numberOfPages = pagePosisTask.Result.Count+1;
+                    pagePositions.AddRange(pagePositionsTask.Result);
+                    var numberOfPages = pagePositionsTask.Result.Count + 1;
                     lastPage = numberOfPages;
                     pagePositionsFound = true;
                 }
@@ -48,10 +47,10 @@ namespace Tabellieren_uebung
                     return;
                 }
 
-                currentPage = GetCurrentPageFromUserInput(userInput, lastPage,currentPage);
-                var lines = await GetLinesFromPageNumber(currentPage,pagePositions,path,1024,pagelength);
-                var linesNumbered = lines.Select((l, i) => $"{ 1+i + ((currentPage-1) * pagelength)};{l}").ToArray();
-                var linesToPrint = linesNumbered.Take(pagelength).ToList();
+                currentPage = GetCurrentPageFromUserInput(userInput, lastPage, currentPage);
+                var lines = await GetLinesFromPageNumber(currentPage, pagePositions, path, 1024, numberOfLinesPerPage);
+                var linesNumbered = lines.Select((l, i) => $"{ 1 + i + ((currentPage - 1) * numberOfLinesPerPage)};{l}").ToArray();
+                var linesToPrint = linesNumbered.Take(numberOfLinesPerPage).ToList();
                 linesToPrint.Insert(0, titleLine);
                 var output = Tabellieren(linesToPrint);
 
@@ -65,30 +64,48 @@ namespace Tabellieren_uebung
             }
         }
 
-        public static async Task<List<string>> GetLinesFromPageNumber(int currentPage, List<int> pagePosis, string path,int buffersize,int numberOfLines)
+        private static bool GetFileEncoding(string path, out Encoding encoding)
         {
-            var offset = pagePosis[currentPage-1];
-            await using (FileStream fs = File.OpenRead(path))
+            encoding = null;
+            using var reader = new StreamReader(path, true);
+
+            reader.Peek();
+            try
             {
-                byte[] b = new byte[buffersize];
-                UTF8Encoding temp = new UTF8Encoding(true);
-                fs.Seek(offset, SeekOrigin.Begin);
-                while (true)
-                {
-                    await fs.ReadAsync(b, 0, b.Length);
-                    var str = temp.GetString(b);
-                    var lines = str.Split('\n').Where(l => l.Length > 0).ToList();
-                    if (lines.Count - 1 < numberOfLines)
-                    {
-                        buffersize *= 2;
-                        continue;
-                    }
-                    return lines;
-                } 
+                encoding = reader.CurrentEncoding;
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine("file encoding not supported, quitting");
+                return false;
+            }
+
+
+            return encoding != null;
         }
 
-        public static int GetCurrentPageFromUserInput(string userInput,int lastPage, int currentPage)
+        private static int GetPageLengthFromArgs(string[] args, int defaultLength)
+        {
+            int pagelength = defaultLength;
+            if (args.Length > 1)
+                int.TryParse(args[1], out pagelength);
+            return pagelength;
+        }
+
+        private static bool GetPathFromArgs(string[] args, out string path)
+        {
+            path = "";
+            if (args.Length < 1)
+            {
+                Console.WriteLine("please provide a file");
+                return false;
+            }
+
+            path = args[0];
+            return true;
+        }
+
+        public static int GetCurrentPageFromUserInput(string userInput, int lastPage, int currentPage)
         {
             var pageSelectionRegex = new Regex(@"J\d+");
 
@@ -116,59 +133,7 @@ namespace Tabellieren_uebung
             return currentPage;
         }
 
-        private static async Task<List<int>> FindPageStartOffsets(string path, int pagelength)
-        {
-            var pagePosis = new List<int>();
-            string titleLine = "";
-            await using (FileStream fs = File.OpenRead(path))
-            {
-                int buffersize = 1024;
-                
-                UTF8Encoding temp = new UTF8Encoding(true);
-
-                var bytesRead = 0;
-                do
-                {
-                    byte[] b = new byte[buffersize];
-                    bytesRead = await fs.ReadAsync(b, 0, b.Length);
-                    var str = temp.GetString(b);
-
-                    var lines = str.Split('\n').Where(l => l.Length > 0).ToList();
-
-
-                    if (lines.Count - 2 < pagelength)
-                    {
-                        buffersize *= 2;
-                        continue;
-                    }
-
-                    if (string.IsNullOrEmpty(titleLine))
-                    {
-                        titleLine = lines[0];
-                        lines = lines.Skip(1).ToList();
-                    }
-
-                    var page = lines.Take(pagelength).ToList();
-                    int endOfPage = str.IndexOf(lines.Skip(pagelength).Take(1).First());
-                    var pageBlock = str.Substring(0, endOfPage - 1);
-                    var pageBlockBytes = temp.GetBytes(pageBlock).Length;
-                    pagePosis.Add(pageBlockBytes + pagePosis.LastOrDefault());
-
-
-                    if (bytesRead < buffersize)
-                    {
-                        break;
-                    }
-
-                    fs.Seek(pagePosis.Last(), SeekOrigin.Begin);
-                    
-                } while (bytesRead > 0);
-            }
-
-            return pagePosis;
-        }
-
-        public async Task<List<string>> GetLinesFromOffset(int numberOfLines, int offset, string path,int buffersize)
+        public async Task<List<string>> GetLinesFromOffset(int numberOfLines, int offset, string path, int buffersize)
         {
             await using (FileStream fs = File.OpenRead(path))
             {
@@ -191,7 +156,7 @@ namespace Tabellieren_uebung
                 }
             }
         }
-        
+
         public static string[] Tabellieren(List<string> csvZeilen)
         {
             int numberOfInputLines = csvZeilen.Count;
