@@ -15,18 +15,8 @@ namespace Tabellieren_uebung
         {
             if (!GetPathFromArgs(args, out var path)) return;
             var numberOfLinesPerPage = GetPageLengthFromArgs(args, defaultLength: 10);
-            if (!GetFileEncoding(path, out Encoding encoding)) return;
 
-            List<int> pagePositions = new List<int>() { 0 };
-
-            string titleLine = (await GetLinesFromPageNumber(1, pagePositions, path, 1024, 1)).FirstOrDefault();
-            pagePositions[0] = new UTF8Encoding().GetBytes(titleLine + '\n').Length;
-            var pagePositionsTask = FindPageStartOffsets(path, numberOfLinesPerPage);
-
-            var columns = titleLine?.Split(';').ToList();
-            titleLine = "No.;" + titleLine;
-
-
+           
             string userInput = "F";
             int currentPage = 1;
             int lastPage = 1;//lines.Length / pagelength + (lines.Length % pagelength > 0 ? 1 : 0);
@@ -34,55 +24,36 @@ namespace Tabellieren_uebung
 
             while (true)
             {
-                if (pagePositionsTask.IsCompleted && !pagePositionsFound)
-                {
-                    //lastPage = numberOfLines / pagelength + (numberOfLines % pagelength > 0 ? 1 : 0);
-                    pagePositions.AddRange(pagePositionsTask.Result);
-                    var numberOfPages = pagePositionsTask.Result.Count + 1;
-                    lastPage = numberOfPages;
-                    pagePositionsFound = true;
-                }
-                if (userInput == "E")
-                {
-                    return;
-                }
+                //if (pagePositionsTask.IsCompleted && !pagePositionsFound)
+                //{
+                //    //lastPage = numberOfLines / pagelength + (numberOfLines % pagelength > 0 ? 1 : 0);
+                //    pagePositions.AddRange(pagePositionsTask.Result);
+                //    var numberOfPages = pagePositionsTask.Result.Count + 1;
+                //    lastPage = numberOfPages;
+                //    pagePositionsFound = true;
+                //}
+                //if (userInput == "E")
+                //{
+                //    return;
+                //}
 
-                currentPage = GetCurrentPageFromUserInput(userInput, lastPage, currentPage);
-                var lines = await GetLinesFromPageNumber(currentPage, pagePositions, path, 1024, numberOfLinesPerPage);
-                var linesNumbered = lines.Select((l, i) => $"{ 1 + i + ((currentPage - 1) * numberOfLinesPerPage)};{l}").ToArray();
-                var linesToPrint = linesNumbered.Take(numberOfLinesPerPage).ToList();
-                linesToPrint.Insert(0, titleLine);
-                var output = Tabellieren(linesToPrint);
+                //currentPage = GetCurrentPageFromUserInput(userInput, lastPage, currentPage);
+                //var lines = await GetLinesFromPageNumber(currentPage, pagePositions, path, 1024, numberOfLinesPerPage);
+                //var linesNumbered = lines.Select((l, i) => $"{ 1 + i + ((currentPage - 1) * numberOfLinesPerPage)};{l}").ToArray();
+                //var linesToPrint = linesNumbered.Take(numberOfLinesPerPage).ToList();
+                //linesToPrint.Insert(0, titleLine);
+                //var output = Tabellieren(linesToPrint);
 
-                for (int i = 0; i < output.Length; i++)
-                {
-                    Console.WriteLine(output[i]);
-                }
-                Console.WriteLine($"Page {currentPage} of {lastPage}{(pagePositionsFound ? null : '?')}");
-                Console.WriteLine("F)irst page, P)revious page, N)ext page, L)ast page, J)ump to page, E)xit");
-                userInput = Console.ReadLine();
+                //for (int i = 0; i < output.Length; i++)
+                //{
+                //    Console.WriteLine(output[i]);
+                //}
+                //Console.WriteLine($"Page {currentPage} of {lastPage}{(pagePositionsFound ? null : '?')}");
+                //Console.WriteLine("F)irst page, P)revious page, N)ext page, L)ast page, J)ump to page, E)xit");
+                //userInput = Console.ReadLine();
             }
         }
 
-        private static bool GetFileEncoding(string path, out Encoding encoding)
-        {
-            encoding = null;
-            using var reader = new StreamReader(path, true);
-
-            reader.Peek();
-            try
-            {
-                encoding = reader.CurrentEncoding;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("file encoding not supported, quitting");
-                return false;
-            }
-
-
-            return encoding != null;
-        }
 
         private static int GetPageLengthFromArgs(string[] args, int defaultLength)
         {

@@ -11,9 +11,9 @@ namespace Tabellieren_uebung
         private FileAnalizer fileAnalizer;
         private OutputFormatter outputFormatter;
 
-        public Tabellizer(string filePath,int numberOfLinesPerPage,Encoding encoding)
+        public Tabellizer(string filePath,int numberOfLinesPerPage)
         {
-            this.fileAnalizer = new FileAnalizer(filePath,numberOfLinesPerPage,encoding);
+            this.fileAnalizer = new FileAnalizer(filePath,numberOfLinesPerPage);
             this.outputFormatter = new OutputFormatter();
         }
 

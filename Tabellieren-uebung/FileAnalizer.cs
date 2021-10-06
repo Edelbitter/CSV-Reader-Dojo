@@ -2,40 +2,48 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
+[assembly: InternalsVisibleTo("Tabellieren-uebung-tests")]
 namespace Tabellieren_uebung
 {
     public class FileAnalizer
     {
-        private string filePath;
-        private int numberOfLinesPerPage;
-        private Encoding encoding;
+        internal string filePath;
+        internal int numberOfLinesPerPage;
+        internal Encoding encoding;
 
-        private int buffersize;
-        private List<string> columns;
-        private string titleLine;
+        internal int buffersize;
+        internal List<string> columns;
+        internal string titleLine;
 
-        private List<int> pagePositions = new List<int>() { 0 };
+        internal List<int> pagePositions = new List<int>() { 0 };
 
-        public List<string> Columns { get; private set; }
-        public bool FileReadFinished { get; private set; }
+        public List<string> Columns { get; internal set; }
+        public bool FileReadFinished { get; internal set; }
 
-        public FileAnalizer(string filePath, int numberOfLinesPerPage, Encoding encoding)
+        public FileAnalizer(string filePath, int numberOfLinesPerPage, bool isTest = false)
         {
             this.filePath = filePath;
             this.numberOfLinesPerPage = numberOfLinesPerPage;
-            this.encoding = encoding;
-
             this.buffersize = 1024;
-            this.Initialize();
+
+            if (!isTest)
+            {
+                if (!this.GetFileEncoding())
+                {
+                    throw new Exception();
+                }
+                this.Initialize();
+            }
 
         }
 
-        private void Initialize()
+        internal void Initialize()
         {
-            this.GetTitleLine();
+            this.SetTitleLine();
             this.Columns = this.titleLine.Split(';').ToList();
 
             this.FileReadFinished = false;
@@ -43,45 +51,51 @@ namespace Tabellieren_uebung
 
         }
 
-        private void GetTitleLine()
+        internal void SetTitleLine()
         {
             var firstLine = this.GetLinesFromPageNumber(1, 1).FirstOrDefault();
-            var titleLineBytes = this.encoding.GetBytes(firstLine);
-            this.pagePositions[0] = titleLineBytes.Length;
-            this.titleLine = $"No.{firstLine.Trim()}";
+            this.SetFirstPagePositionAtEndOfTitleLine(firstLine);
+            this.titleLine = $"No.;{firstLine.Trim()}";
         }
 
-        private List<string> GetLinesFromPageNumber(int currentPage, int numberOfLines)
+        internal void SetFirstPagePositionAtEndOfTitleLine(string firstLine)
+        {
+            var titleLineBytes = this.encoding.GetBytes(firstLine);
+            this.pagePositions[0] = titleLineBytes.Length;
+        }
+
+        internal List<string> GetLinesFromPageNumber(int currentPage, int numberOfLines)
         {
             var task = this.GetLinesFromPageNumberAsync(currentPage, numberOfLines);
             task.Wait();
             return task.Result;
         }
 
-        private async Task<List<string>> GetLinesFromPageNumberAsync(int currentPage, int numberOfLines)
+        internal async Task<List<string>> GetLinesFromPageNumberAsync(int currentPage, int numberOfLines)
         {
-            var fileStream = this.GetFileStreamAtPagePosition(currentPage);
+            await using var fileStream = this.GetFileStreamAtPagePosition(currentPage);
             while (true)
             {
-                var lineBlock = await this.ReadBlockAsync(fileStream);
-                var lines = this.ExtractLines(lineBlock);
-                if (this.AdjustBuffersize(lines.Count - 1, numberOfLines))
+                var lineBlockResult = await this.ReadBlockAsync(fileStream);
+                var lines = this.ExtractLines(lineBlockResult.LineBlock);
+                if (!lineBlockResult.FileEndReached && this.AdjustBuffersize(lines.Count - 1, numberOfLines))
                 {
                     continue;
                 }
-                return lines;
+                return lines.Take(numberOfLines).ToList();
             }
         }
 
-        private FileStream GetFileStreamAtPagePosition(int currentPage)
+        internal FileStream GetFileStreamAtPagePosition(int currentPage)
         {
-            var offset = this.pagePositions[currentPage - 1];
-            using FileStream fs = File.OpenRead(this.filePath);
+            int pageToReturn = currentPage <= this.pagePositions.Count ? currentPage : this.pagePositions.Count;
+            var offset = this.pagePositions[pageToReturn - 1];
+            FileStream fs = File.OpenRead(this.filePath);
             fs.Seek(offset, SeekOrigin.Begin);
             return fs;
         }
 
-        private bool AdjustBuffersize(int numberOfAvailableLines, int numberOfRequiredLines)
+        internal bool AdjustBuffersize(int numberOfAvailableLines, int numberOfRequiredLines)
         {
             if (numberOfAvailableLines < numberOfRequiredLines)
             {
@@ -92,15 +106,19 @@ namespace Tabellieren_uebung
             return false;
         }
 
-        private async Task<string> ReadBlockAsync(FileStream fs)
+        internal async Task<LineBlockReturnModel> ReadBlockAsync(FileStream fs)
         {
             byte[] b = new byte[this.buffersize];
-            await fs.ReadAsync(b, 0, b.Length);
+            var numberOfBytesRead= await fs.ReadAsync(b, 0, b.Length);
             var str = this.encoding.GetString(b);
-            return str;
+            return new LineBlockReturnModel()
+            {
+                LineBlock = str,
+                FileEndReached = numberOfBytesRead<b.Length
+            };
         }
 
-        private List<string> ExtractLines(string lineBlock)
+        internal List<string> ExtractLines(string lineBlock)
         {
             var result = new List<string>();
 
@@ -111,11 +129,13 @@ namespace Tabellieren_uebung
                 {
                     return result.Where(l => l.Length > 0).ToList();
                 }
+
+                lineBlock = lineBlock.Substring(nextLine.Length);
                 result.Add(nextLine);
             }
         }
 
-        private string ExtractLine(string lineBlock)
+        internal string ExtractLine(string lineBlock)
         {
             int indexOfCr = lineBlock.IndexOf('\r');
             int indexOfLf = lineBlock.IndexOf('\n');
@@ -125,39 +145,43 @@ namespace Tabellieren_uebung
                 if (string.IsNullOrEmpty(lineBlock)) return null;
                 return lineBlock;
             }
-            if (indexOfLf == -1)
+            if (indexOfLf == -1) // \r
             {
-                return lineBlock.Substring(0, indexOfCr);
+                return lineBlock.Substring(0, indexOfCr + 1);
             }
-            if (indexOfCr == -1)
+            if (indexOfCr == -1) // \n
             {
-                return lineBlock.Substring(0, indexOfLf);
+                return lineBlock.Substring(0, indexOfLf + 1);
             }
-            if (indexOfLf - indexOfCr == 1)
+            if (indexOfLf - indexOfCr == 1) // \r\n
             {
-                return lineBlock.Substring(0, indexOfLf);
+                return lineBlock.Substring(0, indexOfLf + 1);
+            }
+            if (indexOfLf - indexOfCr != 1)
+            {
+                int firstOccurenceIndex = indexOfLf < indexOfCr ? indexOfLf : indexOfCr;
+                return lineBlock.Substring(0, firstOccurenceIndex + 1);
             }
 
             return null;
         }
 
 
-        private async Task FindPageStartOffsets()
+        internal async Task FindPageStartOffsets()
         {
             while (true)
             {
-                var fileStream = this.GetFileStreamAtPagePosition(1);
-                var lineBlock = await this.ReadBlockAsync(fileStream);
-                if (string.IsNullOrWhiteSpace(lineBlock))
+                await using var fileStream = this.GetFileStreamAtPagePosition(1);
+                var lineBlockResult = await this.ReadBlockAsync(fileStream);
+                if (string.IsNullOrWhiteSpace(lineBlockResult.LineBlock))
                 {
                     this.FileReadFinished = true;
                     break;
                 }
 
-                var lines = this.ExtractLines(lineBlock);
+                var lines = this.ExtractLines(lineBlockResult.LineBlock);
 
-                if (this.AdjustBuffersize(lines.Count - 1, this.numberOfLinesPerPage)
-                && this.pagePositions.Count == 1)
+                if (!lineBlockResult.FileEndReached && this.AdjustBuffersize(lines.Count - 1, this.numberOfLinesPerPage))
                 {
                     continue;
                 }
@@ -169,8 +193,8 @@ namespace Tabellieren_uebung
                 //}
 
                 var page = lines.Take(this.numberOfLinesPerPage).ToList();
-                int endOfPage = lineBlock.IndexOf(lines.Skip(this.numberOfLinesPerPage).Take(1).First());
-                var pageBlock = lineBlock.Substring(0, endOfPage - 1);
+                int endOfPage = lineBlockResult.LineBlock.IndexOf(lines.Skip(this.numberOfLinesPerPage).Take(1).First());
+                var pageBlock = lineBlockResult.LineBlock.Substring(0, endOfPage - 1);
                 var pageBlockBytes = this.encoding.GetBytes(pageBlock).Length;
                 this.pagePositions.Add(pageBlockBytes + this.pagePositions.LastOrDefault());
 
@@ -184,6 +208,23 @@ namespace Tabellieren_uebung
             }
         }
 
+        // aus Zeitgründen kann die Funktion nur wenige Encodings erkennen
+        internal bool GetFileEncoding()
+        {
+            using var reader = new StreamReader(this.filePath, true);
 
+            reader.Peek();
+            try
+            {
+                this.encoding = reader.CurrentEncoding;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("file encoding not supported, quitting");
+                return false;
+            }
+
+            return this.encoding != null;
+        }
     }
 }

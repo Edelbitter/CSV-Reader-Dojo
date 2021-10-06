@@ -2,5 +2,15 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=63354e84_002Dacb3_002D4a67_002D9e58_002Da98cce1d9b69/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TabellierenWorks" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.Tests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.FileAnalizerTests.CorrectEncodingIsFound&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.FileAnalizerTests.ExtractLineExtractsFirstLine&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.FileAnalizerTests.ExtractLinesExtractsCorrectLines&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.FileAnalizerTests.ReadBlockReturnsCorrectString&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.FileAnalizerTests.AdjustBuffersizeAdustsCorrectly&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.FileAnalizerTests.GetFileStreamAtPagePositionReturnsCorrectStream&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.FileAnalizerTests.GetLinesFromPageNumberAsyncReturnsCorrectLines&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.FileAnalizerTests.GetTitleLineReturnsCorrectLine&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.FileAnalizerTests.SetFirstPagePositionAtEndOfTitleLineSetsCorrectValues&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::24BEB11B-26C6-438F-B154-989BF09C9909::net5.0::Tabellieren_uebung_tests.FileAnalizerTests.SetTitleLineSetsCorrectLine&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
